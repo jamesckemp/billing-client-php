@@ -19,9 +19,9 @@ Class PlassoBilling {
       $json = json_decode($results, true);
       if(isset($json['errors']) && count($json['errors']) > 0){ $this->authFail(); return; }
       $this->plassoUserId = $json['data']['member']['id'];
-      $this->plassoPlanId = $json['data']['member']['planId'];
+      $this->plassoPlanId = ! empty( $json['data']['member']['planId'] ) ? $json['data']['member']['planId'] : null;
       $this->stripeCustomerId = $json['data']['member']['stripeCustomerId'];
-      $cookieValue = json_encode(array('token' => $this->plassoToken, 'logout_url' => $json['data']['member']['space']['logout_url']));
+      $cookieValue = json_encode(array('token' => $this->plassoToken, 'logoutUrl' => $json['data']['member']['space']['logoutUrl']));
       setcookie('__plasso_billing', $cookieValue, time() + 3600, '/', $_SERVER['SERVER_NAME'], false, true);
       $_COOKIE['__plasso_billing'] = $cookieValue;
     }
@@ -30,7 +30,7 @@ Class PlassoBilling {
     $logoutUrl = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')?'https':'http').'://'.$_SERVER['HTTP_HOST'];
     if(isset($_COOKIE['__plasso_billing']) && $_COOKIE['__plasso_billing'] != ''){
       $cookieJson = json_decode($_COOKIE['__plasso_billing'], true);
-      if(isset($cookieJson['logout_url']) && !empty($cookieJson['logout_url'])){ $logoutUrl = $cookieJson['logout_url']; }
+      if(isset($cookieJson['logoutUrl']) && !empty($cookieJson['logoutUrl'])){ $logoutUrl = $cookieJson['logoutUrl']; }
     }
     echo '<html><head><meta http-equiv="refresh" content="0; URL='.$logoutUrl.'" /></head><body></body></html>'; exit;
   }
